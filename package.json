@@ -1,0 +1,28 @@
+{
+  "name": "blackbaud-veracross-migration",
+  "version": "1.0.0",
+  "description": "Making a decent amount of work even less.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelgira23/Blackbaud-Veracross-Migration.git"
+  },
+  "keywords": [
+    "blackbaud",
+    "veracross",
+    "spreadsheet"
+  ],
+  "author": "Michael Gira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelgira23/Blackbaud-Veracross-Migration/issues"
+  },
+  "homepage": "https://github.com/michaelgira23/Blackbaud-Veracross-Migration#readme",
+  "dependencies": {
+    "csv-parse": "^2.5.0",
+    "moment": "^2.22.2"
+  }
+}
