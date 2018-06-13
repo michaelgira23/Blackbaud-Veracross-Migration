@@ -1,8 +1,8 @@
 const port = 1252;
 
 // const filePath = __dirname + '/../test/dance.csv';
-const filePath = __dirname + '/../test/rehearsal.csv';
-// const filePath = __dirname + '/../test/VC Event Calendar w_ Room.csv';
+// const filePath = __dirname + '/../test/rehearsal.csv';
+const filePath = __dirname + '/../test/VC Event Calendar w_ Room.csv';
 const outputPath = __dirname + '/../test/VC Event Calendar w_ Room.json'
 const outputRawPath = __dirname + '/../test/RAW-VC Event Calendar w_ Room.json';
 
