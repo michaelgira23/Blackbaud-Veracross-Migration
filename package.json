@@ -23,6 +23,8 @@
   "homepage": "https://github.com/michaelgira23/Blackbaud-Veracross-Migration#readme",
   "dependencies": {
     "csv-parse": "^2.5.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
     "fs-extra": "^6.0.1",
     "moment": "^2.22.2"
   }

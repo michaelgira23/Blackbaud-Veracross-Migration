@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+
+		<title>Blackbaud Veracross Migration</title>
+
+		<style>
+			.container {
+				padding-top: 6rem;
+				padding-bottom: 6rem;
+			}
+
+			.event {
+				margin-bottom: 1rem;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="container">
+			<% for (let i = 0; i < reservationKeys.length; i++) { %>
+				<%
+					const name = reservationKeys[i];
+					const reservationRooms = reservations[name];
+					const rooms = Object.keys(reservationRooms);
+				%>
+				<div class="event card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<a data-toggle="collapse" href="#collapse-<%= i %>">
+								<%= name %>
+							</a>
+						</h5>
+					</div>
+
+					<div id="collapse-<%= i %>" class="collapse">
+						<div class="card-body">
+							<% for (const room of rooms) { %>
+								<h1><%= room %> (<%= reservationRooms[room].custom.length + reservationRooms[room].regular.length %>)</h1>
+								<table class="table">
+									<thead>
+										<tr>
+											<th scope="col">Check</th>
+											<th scope="col">Description</th>
+											<th scope="col">Room</th>
+											<th scope="col">From</th>
+											<th scope="col">To</th>
+											<th scope="col">Start Time</th>
+											<th scope="col">End Time</th>
+											<th scope="col">Repeat</th>
+										</tr>
+									</thead>
+									<tbody>
+										<% for (const custom of reservationRooms[room].custom) { %>
+											<tr>
+												<td><input type="checkbox"></td>
+												<th scope="row"><%= custom.description %></th>
+												<td><%= custom.room %></td>
+												<td><%= custom.from %></td>
+												<td><%= custom.to %></td>
+												<td><%= custom.startTime %></td>
+												<td><%= custom.endTime %></td>
+												<td class="bg-warning"></td>
+											</tr>
+										<% } %>
+										<% for (const regular of reservationRooms[room].regular) { %>
+											<tr>
+												<td><input type="checkbox"></td>
+												<th scope="row"><%= regular.description %></th>
+												<td><%= regular.room %></td>
+												<td><%= regular.from %></td>
+												<td><%= regular.to %></td>
+												<td><%= regular.startTime %></td>
+												<td><%= regular.endTime %></td>
+												<td><%= regular.repeat.join(' ') %></td>
+											</tr>
+										<% } %>
+									</tbody>
+								</table>
+							<% } %>
+						</div>
+					</div>
+				</div>
+			<% } %>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+	</body>
+</html>
