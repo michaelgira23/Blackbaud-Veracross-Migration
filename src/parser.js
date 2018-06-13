@@ -83,10 +83,10 @@ function parse(filePath, callback) {
 
 						reservations[event][room].regular = reservations[event][room].regular.concat(simplify(rows));
 						reservations[event][room].regular.sort((a, b) => {
-							return a.from.valueOf() - b.from.valueOf();
+							return moment(a.from).valueOf() - moment(b.from).valueOf();
 						});
 						reservations[event][room].custom.sort((a, b) => {
-							return a.from.valueOf() - b.from.valueOf();
+							return moment(a.from).valueOf() - moment(b.from).valueOf();
 						});
 					}
 				}
