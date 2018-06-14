@@ -19,7 +19,7 @@ app.use(express.static(__dirname + '/public'));
 parse(filePath, (err, reservations, table) => {
 	if (err) throw err;
 
-	consecutiveParse(filePath, (err, consecutiveReservations) => {
+	consecutiveParse(filePath, (err, consecutiveReservations, consecutiveEntries) => {
 		if (err) throw err;
 
 		// console.log('reservations', reservations);
@@ -48,7 +48,8 @@ parse(filePath, (err, reservations, table) => {
 				reservations: consecutiveReservations,
 				reservationKeys: Object.keys(consecutiveReservations),
 				table,
-				consecutive: true
+				consecutive: true,
+				consecutiveEntries
 			});
 		});
 

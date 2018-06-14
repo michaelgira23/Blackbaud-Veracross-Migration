@@ -83,10 +83,10 @@ function parse(filePath, callback) {
 
 						reservations[event][room].regular = reservations[event][room].regular.concat(simplify(rows));
 						reservations[event][room].regular.sort((a, b) => {
-							return moment(a.from).valueOf() - moment(b.from).valueOf();
+							return moment(a.from, 'MM/DD/YY').valueOf() - moment(b.from, 'MM/DD/YY').valueOf();
 						});
 						reservations[event][room].custom.sort((a, b) => {
-							return moment(a.from).valueOf() - moment(b.from).valueOf();
+							return moment(a.from, 'MM/DD/YY').valueOf() - moment(b.from, 'MM/DD/YY').valueOf();
 						});
 					}
 				}
@@ -114,6 +114,12 @@ function consecutiveParse(filePath, callback) {
 
 			// Group by event name
 			const rowsByEvent = group(table, current => current.description);
+
+			// Get entries for each event
+			const entries = {};
+			for (const event of Object.keys(rowsByEvent)) {
+				entries[event] = calcConsecutiveEntry(rowsByEvent[event]);
+			}
 
 			// Group by room number
 			const groupRooms = {};
@@ -167,15 +173,15 @@ function consecutiveParse(filePath, callback) {
 
 						reservations[event][room].regular = reservations[event][room].regular.concat(consecutiveSimplify(rows));
 						reservations[event][room].regular.sort((a, b) => {
-							return moment(a.from).valueOf() - moment(b.from).valueOf();
+							return moment(a.from, 'MM/DD/YY').valueOf() - moment(b.from, 'MM/DD/YY').valueOf();
 						});
 						reservations[event][room].custom.sort((a, b) => {
-							return moment(a.from).valueOf() - moment(b.from).valueOf();
+							return moment(a.from, 'MM/DD/YY').valueOf() - moment(b.from, 'MM/DD/YY').valueOf();
 						});
 					}
 				}
 			}
-			callback(null, reservations, table);
+			callback(null, reservations, entries, table);
 		});
 	});
 }
@@ -364,7 +370,6 @@ function consecutiveSimplify(inputRows) {
 	 * Get dates reoccuring by week
 	 */
 
-	const reoccurances = [];
 	const reservations = [];
 	for (const row of rows) {
 		const checkDate = row.start.clone();
@@ -397,6 +402,70 @@ function consecutiveSimplify(inputRows) {
 	}
 
 	return reservations;
+}
+
+function calcConsecutiveEntry(inputRows) {
+
+	function getDate(target) {
+		for (const row of inputRows) {
+			if (row.start.isSame(target)) {
+				return row;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Calculate which weekdays events are on
+	 */
+
+	const repeatWeekdays = [];
+	let from = null;
+	let to = null;
+
+	for (const row of inputRows) {
+		// Add weekday
+		const weekday = row.start.day();
+		if (!repeatWeekdays.includes(weekday)) {
+			repeatWeekdays.push(weekday);
+		}
+
+		if (from === null || row.start.isBefore(from)) {
+			from = row.start;
+		}
+
+		if (to === null || row.start.isAfter(to)) {
+			to = row.end;
+		}
+	}
+	repeatWeekdays.sort();
+
+	const skipDates = [];
+
+	const pointer = from.clone();
+	while (pointer.isBefore(to)) {
+		if (!repeatWeekdays.includes(pointer.day())) {
+			pointer.add(1, 'day');
+			continue;
+		}
+		if (!getDate(pointer)) {
+			skipDates.push(pointer.clone());
+		}
+		pointer.add(1, 'day');
+	}
+
+	skipDates.sort((a, b) => {
+		return a.valueOf() - b.valueOf();
+	});
+
+	return {
+		repeat: repeatWeekdays.map(d => weekdays[d]),
+		from: momentToDate(from),
+		to: momentToDate(to),
+		startTime: momentToTime(from),
+		endTime: momentToTime(to),
+		skip: skipDates.map(d => momentToDate(d))
+	};
 }
 
 function group(arr, keyFunc) {

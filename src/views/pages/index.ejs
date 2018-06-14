@@ -52,6 +52,60 @@
 
 					<div id="collapse-<%= i %>" class="collapse">
 						<div class="card-body">
+
+							<% if (consecutive) { %>
+								<% const entry = consecutiveEntries[name]; %>
+								<h1>Enter</h1>
+								<table class="table table-success">
+									<thead>
+										<tr>
+											<th scope="col">Check</th>
+											<th scope="col">From</th>
+											<th scope="col">To</th>
+											<th scope="col">Start Time</th>
+											<th scope="col">End Time</th>
+											<th scope="col">Repeat</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td><input type="checkbox"></td>
+											<td><%= entry.from %></td>
+											<td>
+												<% if (entry.from === entry.to) { %>
+													--
+												<% } else { %>
+													<%= entry.to %>
+												<% } %>
+											</td>
+											<td><%= entry.startTime %></td>
+											<td><%= entry.endTime %></td>
+											<td><%= entry.repeat.join(', ')%></td>
+										</tr>
+									</tbody>
+								</table>
+
+								<% if (entry.skip.length > 0) { %>
+									<h1>Skip</h1>
+									<table class="table table-danger">
+										<thead>
+											<tr>
+												<th scope="col">Check</th>
+												<th scope="col">Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											<% for (const date of entry.skip) { %>
+												<tr>
+													<td><input type="checkbox"></td>
+													<td><%= date %></td>
+												</tr>
+											<% } %>
+										</tbody>
+									</table>
+								<% } %>
+							<% } %>
+
 							<% for (const room of rooms) { %>
 								<h1><%= room %> (<%= reservationRooms[room].custom.length + reservationRooms[room].regular.length %>)</h1>
 								<table class="table table-striped">
