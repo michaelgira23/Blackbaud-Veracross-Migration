@@ -9,6 +9,13 @@
 		<title>Blackbaud Veracross Migration</title>
 
 		<style>
+			.algo {
+				position: fixed;
+				top: 1rem;
+				right: 1rem;
+				z-index: 100;
+			}
+
 			.container {
 				padding-top: 6rem;
 				padding-bottom: 6rem;
@@ -20,6 +27,12 @@
 		</style>
 	</head>
 	<body>
+
+		<% if (consecutive) { %>
+			<a href="/" class="algo btn btn-info">Go to Original Algorithm</a>
+		<% } else { %>
+			<a href="/consecutive" class="algo btn btn-info">Go to Consecutive Algorithm</a>
+		<% } %>
 
 		<div class="container">
 			<% for (let i = 0; i < reservationKeys.length; i++) { %>

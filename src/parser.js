@@ -97,6 +97,90 @@ function parse(filePath, callback) {
 }
 
 /**
+ * Parse CSV and calculate what to add for resource reservations
+ * @param {object} reservations - What to enter in the system
+ * @param {object} table - Raw CSV file parsed to JSON
+ */
+
+function consecutiveParse(filePath, callback) {
+	fs.readFile(filePath, 'utf8', (err, data) => {
+		if (err) throw err;
+
+		csvParse(data, (err, raw) => {
+			if (err) {
+				return callback(err, null, null);
+			}
+			const table = formatTable(raw);
+
+			// Group by event name
+			const rowsByEvent = group(table, current => current.description);
+
+			// Group by room number
+			const groupRooms = {};
+			for (const event of Object.keys(rowsByEvent)) {
+				groupRooms[event] = group(rowsByEvent[event], current => current.room);
+			}
+
+			// Group by start/end time
+			const groupTimes = {};
+			for (const event of Object.keys(groupRooms)) {
+				groupTimes[event] = {};
+				for (const room of Object.keys(groupRooms[event])) {
+					groupTimes[event][room] = group(groupRooms[event][room], current => {
+						return `${momentToTime(current.start)}-${momentToTime(current.end)}`;
+					});
+				}
+			}
+
+			// Group dates together
+			const reservations = {};
+			for (const event of Object.keys(groupTimes)) {
+				reservations[event] = {};
+				for (const room of Object.keys(groupTimes[event])) {
+					for (const time of Object.keys(groupTimes[event][room])) {
+						if (typeof reservations[event][room] !== 'object') {
+							reservations[event][room] = {};
+						}
+						if (typeof reservations[event][room].custom !== 'object') {
+							reservations[event][room].custom = [];
+						}
+						if (typeof reservations[event][room].regular !== 'object') {
+							reservations[event][room].regular = [];
+						}
+
+						// Filter out events that take place over multiple days
+						const rows = groupTimes[event][room][time];
+						for (let i = 0; i < rows.length; i++) {
+							const row = rows[i];
+							if (!row.start.clone().startOf('day').isSame(row.end.clone().startOf('day'))) {
+								reservations[event][room].custom.push({
+									description: row.description,
+									room: row.room,
+									from: momentToDate(row.start),
+									to: momentToDate(row.end),
+									startTime: momentToTime(row.start),
+									endTime: momentToTime(row.end),
+								});
+								rows.splice(i--, 1);
+							}
+						}
+
+						reservations[event][room].regular = reservations[event][room].regular.concat(consecutiveSimplify(rows));
+						reservations[event][room].regular.sort((a, b) => {
+							return moment(a.from).valueOf() - moment(b.from).valueOf();
+						});
+						reservations[event][room].custom.sort((a, b) => {
+							return moment(a.from).valueOf() - moment(b.from).valueOf();
+						});
+					}
+				}
+			}
+			callback(null, reservations, table);
+		});
+	});
+}
+
+/**
  * Row format
  *
  * 0 - Description
@@ -244,6 +328,77 @@ function simplify(inputRows) {
 	return reservations;
 }
 
+/**
+ * Simplify rows of the same event, room
+ */
+
+function consecutiveSimplify(inputRows) {
+	// Clone input rows so we don't mess with that
+	const rows = inputRows.slice(0);
+	rows.sort((a, b) => {
+		return a.start.valueOf() - b.start.valueOf();
+	});
+
+	const rowsLeft = rows.slice(0);
+
+	function getDate(target) {
+		for (const row of rowsLeft) {
+			if (row.start.isSame(target)) {
+				return row;
+			}
+		}
+		return null;
+	}
+
+	function removeDate(target) {
+		for (let i = 0; i < rowsLeft.length; i++) {
+			const row = rowsLeft[i];
+			if (row.start.isSame(target)) {
+				rowsLeft.splice(i, 1);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Get dates reoccuring by week
+	 */
+
+	const reoccurances = [];
+	const reservations = [];
+	for (const row of rows) {
+		const checkDate = row.start.clone();
+		const reoccuringRows = [ row ];
+
+		if (!getDate(row.start)) {
+			continue;
+		}
+
+		while (true) {
+			const nextDay = checkDate.add(1, 'day');
+			const nextDayOccurence = getDate(nextDay);
+			if (nextDayOccurence) {
+				reoccuringRows.push(nextDayOccurence);
+				removeDate(nextDayOccurence.start);
+			} else {
+				const end = lastArrayItem(reoccuringRows).end;
+				reservations.push({
+					description: row.description,
+					room: row.room,
+					from: momentToDate(row.start),
+					to: momentToDate(end),
+					startTime: momentToTime(row.start),
+					endTime: momentToTime(end),
+					repeat: []
+				});
+				break;
+			}
+		}
+	}
+
+	return reservations;
+}
+
 function group(arr, keyFunc) {
 	return arr.reduce((acc, current) => {
 		const key = keyFunc(current);
@@ -277,3 +432,4 @@ function lastArrayItem(array) {
 }
 
 module.exports.parse = parse;
+module.exports.consecutiveParse = consecutiveParse;
