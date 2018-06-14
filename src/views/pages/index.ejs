@@ -29,9 +29,9 @@
 	<body>
 
 		<% if (consecutive) { %>
-			<a href="/" class="algo btn btn-info">Go to Original Algorithm</a>
+			<a href="/" class="algo btn btn-info">Use Original Algorithm</a>
 		<% } else { %>
-			<a href="/consecutive" class="algo btn btn-info">Go to Consecutive Algorithm</a>
+			<a href="/consecutive" class="algo btn btn-info">Use Consecutive Algorithm</a>
 		<% } %>
 
 		<div class="container">
@@ -54,7 +54,7 @@
 						<div class="card-body">
 							<% for (const room of rooms) { %>
 								<h1><%= room %> (<%= reservationRooms[room].custom.length + reservationRooms[room].regular.length %>)</h1>
-								<table class="table">
+								<table class="table table-striped">
 									<thead>
 										<tr>
 											<th scope="col">Check</th>
@@ -74,7 +74,13 @@
 												<th scope="row"><%= custom.description %></th>
 												<td><%= custom.room %></td>
 												<td><%= custom.from %></td>
-												<td><%= custom.to %></td>
+												<td>
+													<% if (custom.from === custom.to) { %>
+														--
+													<% } else { %>
+														<%= custom.to %>
+													<% } %>
+												</td>
 												<td><%= custom.startTime %></td>
 												<td><%= custom.endTime %></td>
 												<td></td>
@@ -86,7 +92,13 @@
 												<th scope="row"><%= regular.description %></th>
 												<td><%= regular.room %></td>
 												<td><%= regular.from %></td>
-												<td><%= regular.to %></td>
+												<td>
+													<% if (regular.from === regular.to) { %>
+														--
+													<% } else { %>
+														<%= regular.to %>
+													<% } %>
+												</td>
 												<td><%= regular.startTime %></td>
 												<td><%= regular.endTime %></td>
 												<td><%= regular.repeat.join(', ') %></td>
