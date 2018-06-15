@@ -54,7 +54,7 @@
 						<div class="card-body">
 
 							<% if (consecutive) { %>
-								<% const entry = consecutiveEntries[name]; %>
+								<% const entries = consecutiveEntries[name]; %>
 								<h1>Enter</h1>
 								<table class="table table-success">
 									<thead>
@@ -68,20 +68,22 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td><input type="checkbox"></td>
-											<td><%= entry.from %></td>
-											<td>
-												<% if (entry.from === entry.to) { %>
-													--
-												<% } else { %>
-													<%= entry.to %>
-												<% } %>
-											</td>
-											<td><%= entry.startTime %></td>
-											<td><%= entry.endTime %></td>
-											<td><%= entry.repeat.join(', ')%></td>
-										</tr>
+										<% for (const entry of entries) { %>
+											<tr>
+												<td><input type="checkbox"></td>
+												<td><%= entry.from %></td>
+												<td>
+													<% if (entry.from === entry.to) { %>
+														--
+													<% } else { %>
+														<%= entry.to %>
+													<% } %>
+												</td>
+												<td><%= entry.startTime %></td>
+												<td><%= entry.endTime %></td>
+												<td><%= entry.repeat.join(', ')%></td>
+											</tr>
+										<% } %>
 									</tbody>
 								</table>
 

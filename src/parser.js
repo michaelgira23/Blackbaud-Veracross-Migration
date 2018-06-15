@@ -115,11 +115,26 @@ function consecutiveParse(filePath, callback) {
 			// Group by event name
 			const rowsByEvent = group(table, current => current.description);
 
+			// // Get entries for each event
+			// const entries = group(rowsByEvent[event], current => {
+			// 	return `${momentToTime(current.start)}-${momentToTime(current.end)}`;
+			// });
+			// for (const time of Object.keys(entries)) {
+			// 	entries[time] = calcConsecutiveEntry(entries[time]);
+			// }
+
 			// Get entries for each event
 			const entries = {};
 			for (const event of Object.keys(rowsByEvent)) {
-				entries[event] = calcConsecutiveEntry(rowsByEvent[event]);
+				const rowsByTimeByEvent = group(rowsByEvent[event], current => {
+					return `${momentToTime(current.start)}-${momentToTime(current.end)}`;
+				});
+				entries[event] = [];
+				for (const time of Object.keys(rowsByTimeByEvent)) {
+					entries[event].push(calcConsecutiveEntry(rowsByTimeByEvent[time]));
+				}
 			}
+			console.log('entries', entries);
 
 			// Group by room number
 			const groupRooms = {};
