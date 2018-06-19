@@ -1,5 +1,5 @@
 X := ComObjActive("Excel.Application") ; Creates a handle to your currently active excel sheet
-fromRow := 2
+fromRow := 68
 toRow := 352
 current := fromRow
 
@@ -25,7 +25,7 @@ paste() {
 waitForStopLoading() {
 	Sleep 5000
 	Loop {
-		PixelGetColor, color, xpos, ypos, RGB
+		PixelGetColor, color, 1421, 214, RGB
 		if (color = 0xFFFFFF) {
 			return
 		}

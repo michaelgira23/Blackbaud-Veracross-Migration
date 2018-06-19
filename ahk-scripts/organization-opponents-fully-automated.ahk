@@ -25,7 +25,7 @@ paste() {
 waitForStopLoading() {
 	Sleep 5000
 	Loop {
-		PixelGetColor, color, xpos, ypos, RGB
+		PixelGetColor, color, 1421, 214, RGB
 		if (color = 0xFFFFFF) {
 			return
 		}
